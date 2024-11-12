@@ -1,46 +1,28 @@
 <?php
 
-header('Content-Type: application/json');
-require_once "../Models/InsercionConsulta1Model.php";
+    // Tratamiento input type='text'
+    $bus = empty($_POST['textoConsulta1']) ? '' : $_POST['textoConsulta1'];
 
-$model = new Datos();
-$response = ["status" => "error", "data" => [], "message" => ""];
+    // Preparación para el uso de LIKE
+    $bus = "%" . $bus . "%";
 
-// Si se reciben datos para insertar
-if (!empty($_POST['textoInsercion1']) && !empty($_POST['textoInsercion2']) && isset($_POST['textoInsercion3'])) {
-    $marca = $_POST['textoInsercion1'];
-    $modelo = $_POST['textoInsercion2'];
-    $autonomia = (int) $_POST['textoInsercion3'];
-    
-    // Inserción en la base de datos
-    if ($model->insertData($marca, $modelo, $autonomia)) {
-        $response["status"] = "success";
-        $response["message"] = "Datos insertados correctamente.";
-    } else {
-        $response["message"] = "Error al insertar datos.";
-    }
-}
+    // Llamada a la conexión
+    require_once '../Db/Con1Db.php';
+    // Llamada al modelo
+    require_once '../Models/InsercionConsulta1Model.php';    
 
-// Consultar todos los datos después de la inserción o en la carga inicial
-$response["data"] = $model->getAllData();
+    // Instanciación del objeto
+    $obj1 = new Datos;
+    // Definición de la instrucción
+    $sql1 = "SELECT ide_coc, mar_coc, mod_coc, aut_coc FROM coches WHERE mar_coc LIKE ? OR mod_coc LIKE ? OR CAST(aut_coc AS CHAR) LIKE ? ORDER BY mar_coc, mod_coc, aut_coc";
+    $sql1 = "SELECT ide_coc, mar_coc, mod_coc, aut_coc FROM coches WHERE mar_coc LIKE ? OR mod_coc LIKE ? OR aut_coc LIKE ? ORDER BY mar_coc, mod_coc, aut_coc";
+    // Definición del tipo de parámetros
+    $typeParameters = "sss"; // String String String 
+    // Llamada al método
+    $data1 = $obj1->getData1($sql1, $typeParameters, $bus);
 
-// Formatear los datos para la respuesta
-if (!empty($response["data"])) {
-    $formattedData = [];
-    foreach ($response["data"] as $item) {
-        $formattedData[] = [
-            'ide_coc' => $item['ide_coc'],
-            'mar_coc' => $item['mar_coc'],
-            'mod_coc' => $item['mod_coc'],
-            'aut_coc' => $item['aut_coc']
-        ];
-    }
-    $response["data"] = $formattedData; // Asignar datos formateados
-} else {
-    $response["data"] = []; // Asegurarse de que la data sea un array vacío si no hay resultados
-}
-
-// Devolver la respuesta en formato JSON
-echo json_encode($response);
+    // Devolución de datos en formato JSON
+    header('Content-Type: application/json');
+    echo json_encode($data1);
 
 ?>

@@ -1,35 +1,26 @@
 <?php
-require_once "../Db/Con1Db.php"; 
+class Datos
+{
 
-class Datos {
-    // Método para insertar datos
-    public function insertData($marca, $modelo, $autonomia) {
+    // Devuelve Datos (select)
+    public function getData1($sql, $typeParameters, $p1)
+    {
         // Conexión
         $mysqli = Conex1::con1();
-        try {
-            // Preparación de la declaración
-            $stmt = $mysqli->prepare("INSERT INTO coches (mar_coc, mod_coc, aut_coc) VALUES (?, ?, ?)");
-            $stmt->bind_param("ssi", $marca, $modelo, $autonomia);
-            // Ejecución de la sentencia
-            $stmt->execute();
-            return $stmt->affected_rows > 0;
-        } catch (Exception $e) {
-            // Manejo de excepciones
-            return false;
-        } finally {
-            // Liberación de la declaración y cierre de la conexión
-            $stmt->close();
-            $mysqli->close();
-        }
-    }
-
-    // Método para obtener todos los datos
-    public function getAllData() {
-        $mysqli = Conex1::con1();
+        // Protección frente a SQL inyectado (mysql_real_escape_string)
+        $p1 = $mysqli->real_escape_string($p1);
+        // Sentencia
+        $statement = $mysqli->prepare($sql);
+        // Parámetros (ejemplo: si = string integer)
+        $statement->bind_param($typeParameters, $p1, $p1, $p1);
+        // Ejecución de la sentencia
+        $statement->execute();
+        // Obtención del resultado
+        $result = $statement->get_result();
+        // Obtención del numero de registros devueltos
         $data = [];
-        try {
-            // Ejecución de la consulta
-            $result = $mysqli->query("SELECT * FROM coches");
+
+        if($result->num_rows >= 1) {
             // Obtención de los datos
             while ($row = $result->fetch_assoc()) {
                 $data[] = [
@@ -39,17 +30,18 @@ class Datos {
                     'aut_coc' => $row['aut_coc']
                 ];
             }
-        } catch (Exception $e) {
-            // Manejo de excepciones
-            return [];
-        } finally {
-            // Liberación del conjunto de resultados y cierre de la conexión
-            if (isset($result)) {
-                $result->free();
-            }
-            $mysqli->close();
         }
+
+        // Liberación del conjunto de resultados
+        $result->free();
+        // Cierre de la declaración
+        $statement->close();
+        // Cierre de la conexión
+        $mysqli->close();
+
+        // Devolución del resultado
         return $data;
     }
+    
 }
 ?>

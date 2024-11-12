@@ -7,6 +7,6 @@
             <input type="submit" id="botonInsercion2" name="botonInsercion2" value="Insertar" class="boton1">
         </form>
     </div>
-    <div id="contenedor2" class="contenedor2">  
+    <div id="contenedor2" class="contenedor2">
     </div>
 </div>

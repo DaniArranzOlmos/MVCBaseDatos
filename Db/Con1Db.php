@@ -10,7 +10,7 @@
             $bd = "bd1";
     
             // $mysqli = new mysqli("localhost", "usuario", "clave", "bd", "puerto-opcional");
-            $mysqli = new mysqli($se, $us, $co, $bd);
+            $mysqli = new mysqli($se, $us, $co, $bd,3306);
 
             if ($mysqli->connect_errno)
             {
@@ -32,4 +32,3 @@
         }          
     }
 ?> 
-
